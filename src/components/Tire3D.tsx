@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Cylinder, Ring } from '@react-three/drei';
 
 interface TireProps {
   color: 'red' | 'blue';
@@ -15,20 +14,16 @@ const TireGeometry = ({ color }: { color: 'red' | 'blue' }) => {
   return (
     <group rotation={[Math.PI / 2, 0, 0]}>
       {/* Main tire body */}
-      <Cylinder
-        args={[1, 1, 0.6, 32]}
-        position={[0, 0, 0]}
-      >
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[1, 1, 0.6, 32]} />
         <meshPhongMaterial color={tireColor} />
-      </Cylinder>
+      </mesh>
       
       {/* Inner rim/hole */}
-      <Cylinder
-        args={[0.4, 0.4, 0.7, 32]}
-        position={[0, 0, 0]}
-      >
+      <mesh position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.4, 0.4, 0.7, 32]} />
         <meshPhongMaterial color={rimColor} />
-      </Cylinder>
+      </mesh>
       
       {/* Tire treads - multiple small cylinders around the tire */}
       {Array.from({ length: 16 }).map((_, i) => {
@@ -36,34 +31,27 @@ const TireGeometry = ({ color }: { color: 'red' | 'blue' }) => {
         const x = Math.cos(angle) * 0.9;
         const y = Math.sin(angle) * 0.9;
         return (
-          <Cylinder
-            key={i}
-            args={[0.05, 0.05, 0.8, 8]}
-            position={[x, y, 0]}
-          >
+          <mesh key={i} position={[x, y, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, 0.8, 8]} />
             <meshPhongMaterial color="#1f2937" />
-          </Cylinder>
+          </mesh>
         );
       })}
       
       {/* Side wall details */}
-      <Ring
-        args={[0.4, 1, 32]}
-        position={[0, 0, 0.35]}
-      >
+      <mesh position={[0, 0, 0.35]}>
+        <ringGeometry args={[0.4, 1, 32]} />
         <meshPhongMaterial color={rimColor} side={2} />
-      </Ring>
-      <Ring
-        args={[0.4, 1, 32]}
-        position={[0, 0, -0.35]}
-      >
+      </mesh>
+      <mesh position={[0, 0, -0.35]}>
+        <ringGeometry args={[0.4, 1, 32]} />
         <meshPhongMaterial color={rimColor} side={2} />
-      </Ring>
+      </mesh>
     </group>
   );
 };
 
-const Tire3D = ({ color, size = 40 }: TireProps) => {
+const Tire3D = ({ color, size = 50 }: TireProps) => {
   return (
     <div style={{ width: size, height: size }}>
       <Canvas
