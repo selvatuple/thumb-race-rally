@@ -36,6 +36,25 @@ const RaceTrack = ({
   const showFinishLine = viewportEnd >= FINISH_LINE;
   const finishLinePosition = showFinishLine ? ((FINISH_LINE - viewportStart) / VISIBLE_TRACK_LENGTH) * 100 : 100;
 
+  // Generate distance markers for current viewport
+  const generateDistanceMarkers = () => {
+    const markers = [];
+    const startMarker = Math.ceil(viewportStart / 10) * 10; // Round up to nearest 10
+    const endMarker = Math.floor(viewportEnd / 10) * 10; // Round down to nearest 10
+    
+    for (let distance = startMarker; distance <= endMarker; distance += 10) {
+      if (distance > 0 && distance < FINISH_LINE) {
+        const position = ((distance - viewportStart) / VISIBLE_TRACK_LENGTH) * 100;
+        if (position >= 0 && position <= 100) {
+          markers.push({ distance, position });
+        }
+      }
+    }
+    return markers;
+  };
+
+  const distanceMarkers = generateDistanceMarkers();
+
   const handleTouch = (event: React.TouchEvent | React.MouseEvent, side: 'left' | 'right') => {
     if (!isGameActive) return;
     
@@ -69,8 +88,8 @@ const RaceTrack = ({
 
   return (
     <div className="relative bg-gray-800 rounded-lg p-4 mb-4 h-[500px]">
-      {/* Track Info */}
-      <div className="absolute top-2 left-2 text-white text-xs bg-black/50 px-2 py-1 rounded">
+      {/* Track Info - moved to top right and made more visible */}
+      <div className="absolute top-2 right-2 text-white text-xs bg-black/70 px-3 py-1 rounded z-10">
         View: {viewportStart.toFixed(0)}m - {viewportEnd.toFixed(0)}m
       </div>
 
@@ -87,6 +106,17 @@ const RaceTrack = ({
               />
             ))}
           </div>
+
+          {/* Distance Markers */}
+          {distanceMarkers.map(({ distance, position }) => (
+            <div
+              key={`left-${distance}`}
+              className="absolute left-2 text-xs font-bold text-red-800 bg-white/80 px-1 rounded"
+              style={{ top: `${100 - position}%`, transform: 'translateY(-50%)' }}
+            >
+              {distance}m
+            </div>
+          ))}
           
           {/* Left Car - only show if within viewport */}
           {leftCarDistance >= viewportStart && leftCarDistance <= viewportEnd && (
@@ -128,6 +158,17 @@ const RaceTrack = ({
               />
             ))}
           </div>
+
+          {/* Distance Markers */}
+          {distanceMarkers.map(({ distance, position }) => (
+            <div
+              key={`right-${distance}`}
+              className="absolute right-2 text-xs font-bold text-blue-800 bg-white/80 px-1 rounded"
+              style={{ top: `${100 - position}%`, transform: 'translateY(-50%)' }}
+            >
+              {distance}m
+            </div>
+          ))}
           
           {/* Right Car - only show if within viewport */}
           {rightCarDistance >= viewportStart && rightCarDistance <= viewportEnd && (
