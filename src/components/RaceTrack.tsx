@@ -40,10 +40,20 @@ const RaceTrack = ({
           
           {/* Left Car */}
           <div 
-            className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2 rotate-90"
-            style={{ bottom: `${leftCarPosition}%`, transform: 'translateX(-50%) rotate(90deg) scaleX(-1)' }}
+            className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
+            style={{ bottom: `${leftCarPosition}%` }}
           >
-            🚗
+            <div className="w-8 h-8 bg-red-600 rounded-sm relative">
+              {/* Car body */}
+              <div className="absolute inset-1 bg-red-400 rounded-sm"></div>
+              {/* Windshield */}
+              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
+              {/* Wheels */}
+              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+            </div>
           </div>
           
           {/* Touch Area */}
@@ -69,10 +79,20 @@ const RaceTrack = ({
           
           {/* Right Car */}
           <div 
-            className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2 rotate-90"
-            style={{ bottom: `${rightCarPosition}%`, transform: 'translateX(-50%) rotate(90deg) scaleX(-1)' }}
+            className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
+            style={{ bottom: `${rightCarPosition}%` }}
           >
-            🚙
+            <div className="w-8 h-8 bg-blue-600 rounded-sm relative">
+              {/* Car body */}
+              <div className="absolute inset-1 bg-blue-400 rounded-sm"></div>
+              {/* Windshield */}
+              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
+              {/* Wheels */}
+              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+            </div>
           </div>
           
           {/* Touch Area */}
