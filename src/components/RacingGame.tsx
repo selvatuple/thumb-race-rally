@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ const RacingGame = () => {
     rightPushes: 0,
   });
 
-  const PUSH_DISTANCE = 0.3; // meters per push
+  const PUSH_DISTANCE = 2.5; // meters per push - increased for more visible movement
   const FINISH_LINE = 100; // meters
 
   const startGame = () => {
