@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import RaceTrack from './RaceTrack';
 import GameStats from './GameStats';
 import WinnerModal from './WinnerModal';
+import StartScreen from './StartScreen';
 import confetti from 'canvas-confetti';
 
 interface GameState {
@@ -13,6 +14,7 @@ interface GameState {
   winner: 'left' | 'right' | null;
   leftPushes: number;
   rightPushes: number;
+  currentScreen: 'start' | 'game';
 }
 
 const RacingGame = () => {
@@ -23,31 +25,43 @@ const RacingGame = () => {
     winner: null,
     leftPushes: 0,
     rightPushes: 0,
+    currentScreen: 'start',
   });
 
   const PUSH_DISTANCE = 2.5; // meters per push - increased for more visible movement
   const FINISH_LINE = 100; // meters
 
+  const showGameScreen = () => {
+    setGameState(prev => ({
+      ...prev,
+      currentScreen: 'game'
+    }));
+  };
+
   const startGame = () => {
-    setGameState({
+    setGameState(prev => ({
+      ...prev,
       leftCarDistance: 0,
       rightCarDistance: 0,
       isGameActive: true,
       winner: null,
       leftPushes: 0,
       rightPushes: 0,
-    });
+      currentScreen: 'game'
+    }));
   };
 
   const resetGame = () => {
-    setGameState({
+    setGameState(prev => ({
+      ...prev,
       leftCarDistance: 0,
       rightCarDistance: 0,
       isGameActive: false,
       winner: null,
       leftPushes: 0,
       rightPushes: 0,
-    });
+      currentScreen: 'start'
+    }));
   };
 
   const pushCar = (side: 'left' | 'right') => {
@@ -68,7 +82,6 @@ const RacingGame = () => {
     });
   };
 
-  // Check for winner
   useEffect(() => {
     if (gameState.leftCarDistance >= FINISH_LINE && !gameState.winner) {
       setGameState(prev => ({ ...prev, winner: 'left', isGameActive: false }));
@@ -87,12 +100,16 @@ const RacingGame = () => {
     }
   }, [gameState.leftCarDistance, gameState.rightCarDistance, gameState.winner]);
 
+  if (gameState.currentScreen === 'start') {
+    return <StartScreen onStart={showGameScreen} />;
+  }
+
   return (
-    <div className="min-h-screen p-4 flex flex-col items-center justify-center">
-      <Card className="w-full max-w-md mx-auto p-6 bg-white/90 backdrop-blur-sm">
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">🏁 Finger Race</h1>
-          <p className="text-gray-600">Use your thumbs to race to 100 meters!</p>
+    <div className="min-h-screen p-4 bg-gradient-to-b from-sky-400 to-green-400">
+      <Card className="w-full max-w-md mx-auto p-4 bg-white/90 backdrop-blur-sm">
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold text-gray-800 mb-1">🏁 Thumb Race</h1>
+          <p className="text-sm text-gray-600">Race to 100 meters!</p>
         </div>
 
         <GameStats 
@@ -110,7 +127,7 @@ const RacingGame = () => {
           isGameActive={gameState.isGameActive}
         />
 
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 mt-4">
           {!gameState.isGameActive && !gameState.winner && (
             <Button onClick={startGame} className="flex-1 bg-green-500 hover:bg-green-600">
               Start Race
@@ -118,7 +135,7 @@ const RacingGame = () => {
           )}
           {gameState.winner && (
             <Button onClick={resetGame} className="flex-1 bg-blue-500 hover:bg-blue-600">
-              New Race
+              Back to Menu
             </Button>
           )}
         </div>
