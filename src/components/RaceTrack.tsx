@@ -1,31 +1,35 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import Tire3D from './Tire3D';
 
 interface RaceTrackProps {
   leftCarDistance: number;
   rightCarDistance: number;
+  leftTireHorizontalPos: number;
+  rightTireHorizontalPos: number;
   onLeftPush: () => void;
   onRightPush: () => void;
   onLeftBack: () => void;
   onRightBack: () => void;
+  onLeftSteer: (direction: 'left' | 'right') => void;
+  onRightSteer: (direction: 'left' | 'right') => void;
   isGameActive: boolean;
 }
 
 const RaceTrack = ({ 
   leftCarDistance, 
   rightCarDistance, 
+  leftTireHorizontalPos,
+  rightTireHorizontalPos,
   onLeftPush, 
   onRightPush, 
   onLeftBack,
   onRightBack,
+  onLeftSteer,
+  onRightSteer,
   isGameActive 
 }: RaceTrackProps) => {
   const FINISH_LINE = 100;
   const VISIBLE_TRACK_LENGTH = 50;
-  
-  // State for tire horizontal positions (0-100, where 50 is center)
-  const [leftTireHorizontalPos, setLeftTireHorizontalPos] = useState(50);
-  const [rightTireHorizontalPos, setRightTireHorizontalPos] = useState(50);
   
   // Touch tracking
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -118,20 +122,14 @@ const RaceTrack = ({
         }
       }
     } else {
-      // Horizontal swipe for left/right movement
+      // Horizontal swipe for left/right steering
       if (Math.abs(deltaX) > 20) {
-        const moveAmount = Math.min(Math.abs(deltaX) / 5, 20); // Scale movement
+        const direction = deltaX > 0 ? 'right' : 'left';
         
         if (side === 'left') {
-          setLeftTireHorizontalPos(prev => {
-            const newPos = deltaX > 0 ? prev + moveAmount : prev - moveAmount;
-            return Math.max(10, Math.min(90, newPos)); // Keep within bounds
-          });
+          onLeftSteer(direction);
         } else {
-          setRightTireHorizontalPos(prev => {
-            const newPos = deltaX > 0 ? prev + moveAmount : prev - moveAmount;
-            return Math.max(10, Math.min(90, newPos)); // Keep within bounds
-          });
+          onRightSteer(direction);
         }
       }
     }
@@ -153,19 +151,13 @@ const RaceTrack = ({
     
     // Check if click is significantly horizontal (for steering)
     if (Math.abs(relativeX - 50) > 20) {
-      // Horizontal movement
-      const moveAmount = Math.abs(relativeX - 50) / 2;
+      // Horizontal steering
+      const direction = relativeX > 50 ? 'right' : 'left';
       
       if (side === 'left') {
-        setLeftTireHorizontalPos(prev => {
-          const newPos = relativeX > 50 ? prev + moveAmount : prev - moveAmount;
-          return Math.max(10, Math.min(90, newPos));
-        });
+        onLeftSteer(direction);
       } else {
-        setRightTireHorizontalPos(prev => {
-          const newPos = relativeX > 50 ? prev + moveAmount : prev - moveAmount;
-          return Math.max(10, Math.min(90, newPos));
-        });
+        onRightSteer(direction);
       }
     } else {
       // Vertical movement (existing logic)
@@ -220,9 +212,9 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Left Tire with horizontal positioning */}
+          {/* Left Tire with physics-based positioning */}
           <div 
-            className="absolute transition-all duration-300 ease-out"
+            className="absolute transition-all duration-100 ease-out"
             style={{ 
               bottom: `${leftCarRelativePosition}%`, 
               left: `${leftTireHorizontalPos}%`,
@@ -277,9 +269,9 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Right Tire with horizontal positioning */}
+          {/* Right Tire with physics-based positioning */}
           <div 
-            className="absolute transition-all duration-300 ease-out"
+            className="absolute transition-all duration-100 ease-out"
             style={{ 
               bottom: `${rightCarRelativePosition}%`, 
               left: `${rightTireHorizontalPos}%`,
@@ -316,7 +308,7 @@ const RaceTrack = ({
       {isGameActive && (
         <div className="absolute -bottom-8 left-0 right-0 text-center">
           <p className="text-white text-xs">
-            Swipe up/down to move forward/back • Swipe left/right to steer!
+            Physics-based tire movement with momentum and inertia!
           </p>
         </div>
       )}
