@@ -6,6 +6,8 @@ interface RaceTrackProps {
   rightCarDistance: number;
   onLeftPush: () => void;
   onRightPush: () => void;
+  onLeftBack: () => void;
+  onRightBack: () => void;
   isGameActive: boolean;
 }
 
@@ -14,6 +16,8 @@ const RaceTrack = ({
   rightCarDistance, 
   onLeftPush, 
   onRightPush, 
+  onLeftBack,
+  onRightBack,
   isGameActive 
 }: RaceTrackProps) => {
   const FINISH_LINE = 100;
@@ -21,6 +25,37 @@ const RaceTrack = ({
   // Calculate car positions as percentages (from bottom to top)
   const leftCarPosition = (leftCarDistance / FINISH_LINE) * 100;
   const rightCarPosition = (rightCarDistance / FINISH_LINE) * 100;
+
+  const handleTouch = (event: React.TouchEvent | React.MouseEvent, side: 'left' | 'right') => {
+    if (!isGameActive) return;
+    
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const touchY = 'touches' in event ? event.touches[0].clientY : (event as React.MouseEvent).clientY;
+    const relativeY = touchY - rect.top;
+    const clickPercentage = (relativeY / rect.height) * 100;
+    
+    // Get car position (from bottom, so we need to invert)
+    const carPosition = side === 'left' ? leftCarPosition : rightCarPosition;
+    const carPositionFromTop = 100 - carPosition;
+    
+    // If clicked above the car (in front), move forward
+    // If clicked below the car (behind), move backward
+    if (clickPercentage < carPositionFromTop) {
+      // Clicked in front of car - move forward
+      if (side === 'left') {
+        onLeftPush();
+      } else {
+        onRightPush();
+      }
+    } else {
+      // Clicked behind car - move backward
+      if (side === 'left') {
+        onLeftBack();
+      } else {
+        onRightBack();
+      }
+    }
+  };
 
   return (
     <div className="relative bg-gray-800 rounded-lg p-4 mb-4 h-[500px]">
@@ -59,8 +94,8 @@ const RaceTrack = ({
           {/* Touch Area */}
           <button
             className="absolute inset-0 bg-transparent active:bg-red-200/30 rounded-lg transition-colors"
-            onTouchStart={onLeftPush}
-            onClick={onLeftPush}
+            onTouchStart={(e) => handleTouch(e, 'left')}
+            onClick={(e) => handleTouch(e, 'left')}
             disabled={!isGameActive}
           />
         </div>
@@ -98,8 +133,8 @@ const RaceTrack = ({
           {/* Touch Area */}
           <button
             className="absolute inset-0 bg-transparent active:bg-blue-200/30 rounded-lg transition-colors"
-            onTouchStart={onRightPush}
-            onClick={onRightPush}
+            onTouchStart={(e) => handleTouch(e, 'right')}
+            onClick={(e) => handleTouch(e, 'right')}
             disabled={!isGameActive}
           />
         </div>
@@ -116,7 +151,7 @@ const RaceTrack = ({
       {isGameActive && (
         <div className="absolute -bottom-8 left-0 right-0 text-center">
           <p className="text-white text-xs">
-            Touch lanes with thumbs to push cars up!
+            Touch in front of car to go forward, behind to go back!
           </p>
         </div>
       )}

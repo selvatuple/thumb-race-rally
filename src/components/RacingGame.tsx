@@ -83,6 +83,22 @@ const RacingGame = () => {
     });
   };
 
+  const pullBackCar = (side: 'left' | 'right') => {
+    if (!gameState.isGameActive || gameState.winner) return;
+
+    setGameState(prev => {
+      const newState = { ...prev };
+      
+      if (side === 'left') {
+        newState.leftCarDistance = Math.max(prev.leftCarDistance - PUSH_DISTANCE, 0);
+      } else {
+        newState.rightCarDistance = Math.max(prev.rightCarDistance - PUSH_DISTANCE, 0);
+      }
+
+      return newState;
+    });
+  };
+
   useEffect(() => {
     if (gameState.leftCarDistance >= FINISH_LINE && !gameState.winner) {
       setGameState(prev => ({ ...prev, winner: 'left', isGameActive: false }));
@@ -113,18 +129,22 @@ const RacingGame = () => {
           <p className="text-xs text-gray-600">Race to 100 meters!</p>
         </div>
 
-        <GameStats 
-          leftDistance={gameState.leftCarDistance}
-          rightDistance={gameState.rightCarDistance}
-          leftPushes={gameState.leftPushes}
-          rightPushes={gameState.rightPushes}
-        />
+        <div className="flex justify-between mb-2">
+          <GameStats 
+            leftDistance={gameState.leftCarDistance}
+            rightDistance={gameState.rightCarDistance}
+            leftPushes={gameState.leftPushes}
+            rightPushes={gameState.rightPushes}
+          />
+        </div>
 
         <RaceTrack 
           leftCarDistance={gameState.leftCarDistance}
           rightCarDistance={gameState.rightCarDistance}
           onLeftPush={() => pushCar('left')}
           onRightPush={() => pushCar('right')}
+          onLeftBack={() => pullBackCar('left')}
+          onRightBack={() => pullBackCar('right')}
           isGameActive={gameState.isGameActive}
         />
 
