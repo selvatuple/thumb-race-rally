@@ -23,14 +23,14 @@ const RaceTrack = ({
   const rightCarPosition = (rightCarDistance / FINISH_LINE) * 100;
 
   return (
-    <div className="relative bg-gray-800 rounded-lg p-4 mb-4 h-96">
+    <div className="relative bg-gray-800 rounded-lg p-4 mb-4 h-[500px]">
       {/* Vertical Track Lanes */}
       <div className="flex h-full space-x-4">
         {/* Left Lane */}
         <div className="relative flex-1 bg-gradient-to-t from-red-100 to-red-50 rounded-lg border-2 border-red-300 overflow-hidden">
           {/* Lane Markings */}
           <div className="absolute inset-0 flex flex-col items-center justify-evenly">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <div 
                 key={i} 
                 className="w-1 h-8 bg-white opacity-50 rounded"
@@ -41,7 +41,7 @@ const RaceTrack = ({
           {/* Left Car */}
           <div 
             className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2 rotate-90"
-            style={{ bottom: `${leftCarPosition}%` }}
+            style={{ bottom: `${leftCarPosition}%`, transform: 'translateX(-50%) rotate(90deg) scaleX(-1)' }}
           >
             🚗
           </div>
@@ -59,7 +59,7 @@ const RaceTrack = ({
         <div className="relative flex-1 bg-gradient-to-t from-blue-100 to-blue-50 rounded-lg border-2 border-blue-300 overflow-hidden">
           {/* Lane Markings */}
           <div className="absolute inset-0 flex flex-col items-center justify-evenly">
-            {Array.from({ length: 8 }).map((_, i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <div 
                 key={i} 
                 className="w-1 h-8 bg-white opacity-50 rounded"
@@ -70,7 +70,7 @@ const RaceTrack = ({
           {/* Right Car */}
           <div 
             className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2 rotate-90"
-            style={{ bottom: `${rightCarPosition}%` }}
+            style={{ bottom: `${rightCarPosition}%`, transform: 'translateX(-50%) rotate(90deg) scaleX(-1)' }}
           >
             🚙
           </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,11 +106,11 @@ const RacingGame = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-b from-sky-400 to-green-400">
-      <Card className="w-full max-w-md mx-auto p-4 bg-white/90 backdrop-blur-sm">
-        <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold text-gray-800 mb-1">🏁 Thumb Race</h1>
-          <p className="text-sm text-gray-600">Race to 100 meters!</p>
+    <div className="min-h-screen p-2 bg-gradient-to-b from-sky-400 to-green-400">
+      <Card className="w-full max-w-md mx-auto p-3 bg-white/90 backdrop-blur-sm">
+        <div className="text-center mb-3">
+          <h1 className="text-xl font-bold text-gray-800 mb-1">🏁 Thumb Race</h1>
+          <p className="text-xs text-gray-600">Race to 100 meters!</p>
         </div>
 
         <GameStats 
@@ -127,7 +128,7 @@ const RacingGame = () => {
           isGameActive={gameState.isGameActive}
         />
 
-        <div className="flex gap-4 mt-4">
+        <div className="flex gap-4 mt-3">
           {!gameState.isGameActive && !gameState.winner && (
             <Button onClick={startGame} className="flex-1 bg-green-500 hover:bg-green-600">
               Start Race
