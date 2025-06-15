@@ -1,5 +1,5 @@
-
 import React from 'react';
+import Tire3D from './Tire3D';
 
 interface RaceTrackProps {
   leftCarDistance: number;
@@ -144,22 +144,12 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Left Car - always visible */}
+          {/* Left Tire - replacing car */}
           <div 
-            className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
-            style={{ bottom: `${leftCarRelativePosition}%` }}
+            className="absolute left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-out"
+            style={{ bottom: `${leftCarRelativePosition}%`, transform: 'translateX(-50%) translateY(50%)' }}
           >
-            <div className="w-8 h-8 bg-red-600 rounded-sm relative">
-              {/* Car body */}
-              <div className="absolute inset-1 bg-red-400 rounded-sm"></div>
-              {/* Windshield */}
-              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
-              {/* Wheels */}
-              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-            </div>
+            <Tire3D color="red" size={50} />
           </div>
           
           {/* Left Finish Line */}
@@ -206,22 +196,12 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Right Car - always visible */}
+          {/* Right Tire - replacing car */}
           <div 
-            className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
-            style={{ bottom: `${rightCarRelativePosition}%` }}
+            className="absolute left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-out"
+            style={{ bottom: `${rightCarRelativePosition}%`, transform: 'translateX(-50%) translateY(50%)' }}
           >
-            <div className="w-8 h-8 bg-blue-600 rounded-sm relative">
-              {/* Car body */}
-              <div className="absolute inset-1 bg-blue-400 rounded-sm"></div>
-              {/* Windshield */}
-              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
-              {/* Wheels */}
-              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-            </div>
+            <Tire3D color="blue" size={50} />
           </div>
           
           {/* Right Finish Line */}
@@ -250,7 +230,7 @@ const RaceTrack = ({
       {isGameActive && (
         <div className="absolute -bottom-8 left-0 right-0 text-center">
           <p className="text-white text-xs">
-            Touch in front of car to go forward, behind to go back!
+            Touch in front of tire to go forward, behind to go back!
           </p>
         </div>
       )}
