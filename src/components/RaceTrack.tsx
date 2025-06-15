@@ -41,7 +41,7 @@ const RaceTrack = ({
           {/* Left Car */}
           <div 
             className="absolute top-2 w-12 h-12 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-2xl"
-            style={{ left: `${leftCarPosition}%`, transform: 'translateX(-50%)' }}
+            style={{ left: `${leftCarPosition}%`, transform: 'translateX(-50%) scaleX(-1)' }}
           >
             🚗
           </div>
@@ -70,7 +70,7 @@ const RaceTrack = ({
           {/* Right Car */}
           <div 
             className="absolute top-2 w-12 h-12 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-2xl"
-            style={{ left: `${rightCarPosition}%`, transform: 'translateX(-50%)' }}
+            style={{ left: `${rightCarPosition}%`, transform: 'translateX(-50%) scaleX(-1)' }}
           >
             🚙
           </div>
