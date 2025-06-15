@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import Tire3D from './Tire3D';
 
 interface RaceTrackProps {
@@ -21,7 +21,14 @@ const RaceTrack = ({
   isGameActive 
 }: RaceTrackProps) => {
   const FINISH_LINE = 100;
-  const VISIBLE_TRACK_LENGTH = 50; // Show only 50m of the track at a time
+  const VISIBLE_TRACK_LENGTH = 50;
+  
+  // State for tire horizontal positions (0-100, where 50 is center)
+  const [leftTireHorizontalPos, setLeftTireHorizontalPos] = useState(50);
+  const [rightTireHorizontalPos, setRightTireHorizontalPos] = useState(50);
+  
+  // Touch tracking
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   
   // Calculate separate viewport offsets for each track
   const leftViewportStart = Math.max(0, leftCarDistance - VISIBLE_TRACK_LENGTH * 0.7);
@@ -78,33 +85,102 @@ const RaceTrack = ({
   const leftDistanceMarkers = generateLeftDistanceMarkers();
   const rightDistanceMarkers = generateRightDistanceMarkers();
 
-  const handleTouch = (event: React.TouchEvent | React.MouseEvent, side: 'left' | 'right') => {
+  const handleTouchStart = (event: React.TouchEvent, side: 'left' | 'right') => {
+    if (!isGameActive) return;
+    
+    const touch = event.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent, side: 'left' | 'right') => {
+    if (!isGameActive || !touchStartRef.current) return;
+    
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    
+    // Determine if this is primarily a vertical or horizontal swipe
+    const isVerticalSwipe = Math.abs(deltaY) > Math.abs(deltaX);
+    
+    if (isVerticalSwipe) {
+      // Vertical swipe for forward/backward movement
+      if (deltaY < -30) { // Swipe up
+        if (side === 'left') {
+          onLeftPush();
+        } else {
+          onRightPush();
+        }
+      } else if (deltaY > 30) { // Swipe down
+        if (side === 'left') {
+          onLeftBack();
+        } else {
+          onRightBack();
+        }
+      }
+    } else {
+      // Horizontal swipe for left/right movement
+      if (Math.abs(deltaX) > 20) {
+        const moveAmount = Math.min(Math.abs(deltaX) / 5, 20); // Scale movement
+        
+        if (side === 'left') {
+          setLeftTireHorizontalPos(prev => {
+            const newPos = deltaX > 0 ? prev + moveAmount : prev - moveAmount;
+            return Math.max(10, Math.min(90, newPos)); // Keep within bounds
+          });
+        } else {
+          setRightTireHorizontalPos(prev => {
+            const newPos = deltaX > 0 ? prev + moveAmount : prev - moveAmount;
+            return Math.max(10, Math.min(90, newPos)); // Keep within bounds
+          });
+        }
+      }
+    }
+    
+    touchStartRef.current = null;
+  };
+
+  const handleClick = (event: React.MouseEvent, side: 'left' | 'right') => {
     if (!isGameActive) return;
     
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const touchY = 'touches' in event ? event.touches[0].clientY : (event as React.MouseEvent).clientY;
-    const relativeY = touchY - rect.top;
-    const clickPercentage = (relativeY / rect.height) * 100;
+    const clickY = event.clientY - rect.top;
+    const clickX = event.clientX - rect.left;
+    const relativeY = (clickY / rect.height) * 100;
+    const relativeX = (clickX / rect.width) * 100;
     
-    // Get car position relative to viewport (from bottom, so we need to invert)
     const carPosition = side === 'left' ? leftCarRelativePosition : rightCarRelativePosition;
     const carPositionFromTop = 100 - carPosition;
     
-    // If clicked above the car (in front), move forward
-    // If clicked below the car (behind), move backward
-    if (clickPercentage < carPositionFromTop) {
-      // Clicked in front of car - move forward
+    // Check if click is significantly horizontal (for steering)
+    if (Math.abs(relativeX - 50) > 20) {
+      // Horizontal movement
+      const moveAmount = Math.abs(relativeX - 50) / 2;
+      
       if (side === 'left') {
-        onLeftPush();
+        setLeftTireHorizontalPos(prev => {
+          const newPos = relativeX > 50 ? prev + moveAmount : prev - moveAmount;
+          return Math.max(10, Math.min(90, newPos));
+        });
       } else {
-        onRightPush();
+        setRightTireHorizontalPos(prev => {
+          const newPos = relativeX > 50 ? prev + moveAmount : prev - moveAmount;
+          return Math.max(10, Math.min(90, newPos));
+        });
       }
     } else {
-      // Clicked behind car - move backward
-      if (side === 'left') {
-        onLeftBack();
+      // Vertical movement (existing logic)
+      if (relativeY < carPositionFromTop) {
+        if (side === 'left') {
+          onLeftPush();
+        } else {
+          onRightPush();
+        }
       } else {
-        onRightBack();
+        if (side === 'left') {
+          onLeftBack();
+        } else {
+          onRightBack();
+        }
       }
     }
   };
@@ -144,10 +220,14 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Left Tire - replacing car */}
+          {/* Left Tire with horizontal positioning */}
           <div 
-            className="absolute left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-out"
-            style={{ bottom: `${leftCarRelativePosition}%`, transform: 'translateX(-50%) translateY(50%)' }}
+            className="absolute transition-all duration-300 ease-out"
+            style={{ 
+              bottom: `${leftCarRelativePosition}%`, 
+              left: `${leftTireHorizontalPos}%`,
+              transform: 'translateX(-50%) translateY(50%)'
+            }}
           >
             <Tire3D color="red" size={50} />
           </div>
@@ -167,8 +247,9 @@ const RaceTrack = ({
           {/* Touch Area */}
           <button
             className="absolute inset-0 bg-transparent active:bg-red-300/40 rounded-lg transition-colors"
-            onTouchStart={(e) => handleTouch(e, 'left')}
-            onClick={(e) => handleTouch(e, 'left')}
+            onTouchStart={(e) => handleTouchStart(e, 'left')}
+            onTouchEnd={(e) => handleTouchEnd(e, 'left')}
+            onClick={(e) => handleClick(e, 'left')}
             disabled={!isGameActive}
           />
         </div>
@@ -196,10 +277,14 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Right Tire - replacing car */}
+          {/* Right Tire with horizontal positioning */}
           <div 
-            className="absolute left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-out"
-            style={{ bottom: `${rightCarRelativePosition}%`, transform: 'translateX(-50%) translateY(50%)' }}
+            className="absolute transition-all duration-300 ease-out"
+            style={{ 
+              bottom: `${rightCarRelativePosition}%`, 
+              left: `${rightTireHorizontalPos}%`,
+              transform: 'translateX(-50%) translateY(50%)'
+            }}
           >
             <Tire3D color="blue" size={50} />
           </div>
@@ -219,18 +304,19 @@ const RaceTrack = ({
           {/* Touch Area */}
           <button
             className="absolute inset-0 bg-transparent active:bg-blue-300/40 rounded-lg transition-colors"
-            onTouchStart={(e) => handleTouch(e, 'right')}
-            onClick={(e) => handleTouch(e, 'right')}
+            onTouchStart={(e) => handleTouchStart(e, 'right')}
+            onTouchEnd={(e) => handleTouchEnd(e, 'right')}
+            onClick={(e) => handleClick(e, 'right')}
             disabled={!isGameActive}
           />
         </div>
       </div>
 
-      {/* Touch Instructions */}
+      {/* Updated Touch Instructions */}
       {isGameActive && (
         <div className="absolute -bottom-8 left-0 right-0 text-center">
           <p className="text-white text-xs">
-            Touch in front of tire to go forward, behind to go back!
+            Swipe up/down to move forward/back • Swipe left/right to steer!
           </p>
         </div>
       )}
