@@ -23,28 +23,33 @@ const RaceTrack = ({
   const FINISH_LINE = 100;
   const VISIBLE_TRACK_LENGTH = 50; // Show only 50m of the track at a time
   
-  // Calculate the viewport offset based on the leading car
-  const leadingDistance = Math.max(leftCarDistance, rightCarDistance);
-  const viewportStart = Math.max(0, leadingDistance - VISIBLE_TRACK_LENGTH * 0.7); // Start scrolling when car is 70% through visible area
-  const viewportEnd = viewportStart + VISIBLE_TRACK_LENGTH;
+  // Calculate separate viewport offsets for each track
+  const leftViewportStart = Math.max(0, leftCarDistance - VISIBLE_TRACK_LENGTH * 0.7);
+  const leftViewportEnd = leftViewportStart + VISIBLE_TRACK_LENGTH;
   
-  // Calculate car positions relative to the visible viewport
-  const leftCarRelativePosition = Math.max(0, Math.min(100, ((leftCarDistance - viewportStart) / VISIBLE_TRACK_LENGTH) * 100));
-  const rightCarRelativePosition = Math.max(0, Math.min(100, ((rightCarDistance - viewportStart) / VISIBLE_TRACK_LENGTH) * 100));
+  const rightViewportStart = Math.max(0, rightCarDistance - VISIBLE_TRACK_LENGTH * 0.7);
+  const rightViewportEnd = rightViewportStart + VISIBLE_TRACK_LENGTH;
   
-  // Show finish line only when it's within the viewport
-  const showFinishLine = viewportEnd >= FINISH_LINE;
-  const finishLinePosition = showFinishLine ? ((FINISH_LINE - viewportStart) / VISIBLE_TRACK_LENGTH) * 100 : 100;
+  // Calculate car positions relative to their respective viewports
+  const leftCarRelativePosition = Math.max(0, Math.min(100, ((leftCarDistance - leftViewportStart) / VISIBLE_TRACK_LENGTH) * 100));
+  const rightCarRelativePosition = Math.max(0, Math.min(100, ((rightCarDistance - rightViewportStart) / VISIBLE_TRACK_LENGTH) * 100));
+  
+  // Show finish line for each track when it's within their respective viewports
+  const showLeftFinishLine = leftViewportEnd >= FINISH_LINE;
+  const leftFinishLinePosition = showLeftFinishLine ? ((FINISH_LINE - leftViewportStart) / VISIBLE_TRACK_LENGTH) * 100 : 100;
+  
+  const showRightFinishLine = rightViewportEnd >= FINISH_LINE;
+  const rightFinishLinePosition = showRightFinishLine ? ((FINISH_LINE - rightViewportStart) / VISIBLE_TRACK_LENGTH) * 100 : 100;
 
-  // Generate distance markers for current viewport
-  const generateDistanceMarkers = () => {
+  // Generate distance markers for left track
+  const generateLeftDistanceMarkers = () => {
     const markers = [];
-    const startMarker = Math.ceil(viewportStart / 10) * 10; // Round up to nearest 10
-    const endMarker = Math.floor(viewportEnd / 10) * 10; // Round down to nearest 10
+    const startMarker = Math.ceil(leftViewportStart / 10) * 10;
+    const endMarker = Math.floor(leftViewportEnd / 10) * 10;
     
     for (let distance = startMarker; distance <= endMarker; distance += 10) {
       if (distance > 0 && distance < FINISH_LINE) {
-        const position = ((distance - viewportStart) / VISIBLE_TRACK_LENGTH) * 100;
+        const position = ((distance - leftViewportStart) / VISIBLE_TRACK_LENGTH) * 100;
         if (position >= 0 && position <= 100) {
           markers.push({ distance, position });
         }
@@ -53,7 +58,25 @@ const RaceTrack = ({
     return markers;
   };
 
-  const distanceMarkers = generateDistanceMarkers();
+  // Generate distance markers for right track
+  const generateRightDistanceMarkers = () => {
+    const markers = [];
+    const startMarker = Math.ceil(rightViewportStart / 10) * 10;
+    const endMarker = Math.floor(rightViewportEnd / 10) * 10;
+    
+    for (let distance = startMarker; distance <= endMarker; distance += 10) {
+      if (distance > 0 && distance < FINISH_LINE) {
+        const position = ((distance - rightViewportStart) / VISIBLE_TRACK_LENGTH) * 100;
+        if (position >= 0 && position <= 100) {
+          markers.push({ distance, position });
+        }
+      }
+    }
+    return markers;
+  };
+
+  const leftDistanceMarkers = generateLeftDistanceMarkers();
+  const rightDistanceMarkers = generateRightDistanceMarkers();
 
   const handleTouch = (event: React.TouchEvent | React.MouseEvent, side: 'left' | 'right') => {
     if (!isGameActive) return;
@@ -88,9 +111,12 @@ const RaceTrack = ({
 
   return (
     <div className="relative bg-gray-800 rounded-lg p-4 mb-4 h-[500px]">
-      {/* Track Info - moved to top right and made more visible */}
-      <div className="absolute top-2 right-2 text-white text-xs bg-black/70 px-3 py-1 rounded z-10">
-        View: {viewportStart.toFixed(0)}m - {viewportEnd.toFixed(0)}m
+      {/* Track Info for both tracks */}
+      <div className="absolute top-2 left-2 text-white text-xs bg-black/70 px-2 py-1 rounded z-10">
+        Red: {leftViewportStart.toFixed(0)}m - {leftViewportEnd.toFixed(0)}m
+      </div>
+      <div className="absolute top-2 right-2 text-white text-xs bg-black/70 px-2 py-1 rounded z-10">
+        Blue: {rightViewportStart.toFixed(0)}m - {rightViewportEnd.toFixed(0)}m
       </div>
 
       {/* Vertical Track Lanes */}
@@ -108,7 +134,7 @@ const RaceTrack = ({
           </div>
 
           {/* Distance Markers */}
-          {distanceMarkers.map(({ distance, position }) => (
+          {leftDistanceMarkers.map(({ distance, position }) => (
             <div
               key={`left-${distance}`}
               className="absolute left-2 text-xs font-bold text-red-800 bg-white/80 px-1 rounded"
@@ -118,22 +144,32 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Left Car - only show if within viewport */}
-          {leftCarDistance >= viewportStart && leftCarDistance <= viewportEnd && (
+          {/* Left Car - always visible */}
+          <div 
+            className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
+            style={{ bottom: `${leftCarRelativePosition}%` }}
+          >
+            <div className="w-8 h-8 bg-red-600 rounded-sm relative">
+              {/* Car body */}
+              <div className="absolute inset-1 bg-red-400 rounded-sm"></div>
+              {/* Windshield */}
+              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
+              {/* Wheels */}
+              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+            </div>
+          </div>
+          
+          {/* Left Finish Line */}
+          {showLeftFinishLine && (
             <div 
-              className="absolute left-1/2 w-10 h-10 bg-red-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
-              style={{ bottom: `${leftCarRelativePosition}%` }}
+              className="absolute left-0 right-0 h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"
+              style={{ top: `${100 - leftFinishLinePosition}%` }}
             >
-              <div className="w-8 h-8 bg-red-600 rounded-sm relative">
-                {/* Car body */}
-                <div className="absolute inset-1 bg-red-400 rounded-sm"></div>
-                {/* Windshield */}
-                <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
-                {/* Wheels */}
-                <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute left-1/2 -top-8 transform -translate-x-1/2 text-2xl">
+                🏁
               </div>
             </div>
           )}
@@ -160,7 +196,7 @@ const RaceTrack = ({
           </div>
 
           {/* Distance Markers */}
-          {distanceMarkers.map(({ distance, position }) => (
+          {rightDistanceMarkers.map(({ distance, position }) => (
             <div
               key={`right-${distance}`}
               className="absolute right-2 text-xs font-bold text-blue-800 bg-white/80 px-1 rounded"
@@ -170,22 +206,32 @@ const RaceTrack = ({
             </div>
           ))}
           
-          {/* Right Car - only show if within viewport */}
-          {rightCarDistance >= viewportStart && rightCarDistance <= viewportEnd && (
+          {/* Right Car - always visible */}
+          <div 
+            className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
+            style={{ bottom: `${rightCarRelativePosition}%` }}
+          >
+            <div className="w-8 h-8 bg-blue-600 rounded-sm relative">
+              {/* Car body */}
+              <div className="absolute inset-1 bg-blue-400 rounded-sm"></div>
+              {/* Windshield */}
+              <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
+              {/* Wheels */}
+              <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+            </div>
+          </div>
+          
+          {/* Right Finish Line */}
+          {showRightFinishLine && (
             <div 
-              className="absolute left-1/2 w-10 h-10 bg-blue-500 rounded-lg shadow-lg transition-all duration-300 ease-out flex items-center justify-center text-white text-xl transform -translate-x-1/2"
-              style={{ bottom: `${rightCarRelativePosition}%` }}
+              className="absolute left-0 right-0 h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"
+              style={{ top: `${100 - rightFinishLinePosition}%` }}
             >
-              <div className="w-8 h-8 bg-blue-600 rounded-sm relative">
-                {/* Car body */}
-                <div className="absolute inset-1 bg-blue-400 rounded-sm"></div>
-                {/* Windshield */}
-                <div className="absolute top-1 left-2 right-2 h-2 bg-blue-200 rounded-sm opacity-70"></div>
-                {/* Wheels */}
-                <div className="absolute -left-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -right-1 top-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -left-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
-                <div className="absolute -right-1 bottom-2 w-2 h-1 bg-gray-800 rounded"></div>
+              <div className="absolute left-1/2 -top-8 transform -translate-x-1/2 text-2xl">
+                🏁
               </div>
             </div>
           )}
@@ -199,18 +245,6 @@ const RaceTrack = ({
           />
         </div>
       </div>
-
-      {/* Finish Line - only show when in viewport */}
-      {showFinishLine && (
-        <div 
-          className="absolute left-0 right-0 h-2 bg-gradient-to-r from-yellow-400 to-yellow-600"
-          style={{ top: `${100 - finishLinePosition}%` }}
-        >
-          <div className="absolute left-1/2 -top-8 transform -translate-x-1/2 text-2xl">
-            🏁
-          </div>
-        </div>
-      )}
 
       {/* Touch Instructions */}
       {isGameActive && (
