@@ -76,14 +76,14 @@ const RaceTrack = ({
 
       {/* Vertical Track Lanes */}
       <div className="flex h-full space-x-4">
-        {/* Left Lane */}
-        <div className="relative flex-1 bg-gradient-to-t from-red-100 to-red-50 rounded-lg border-2 border-red-300 overflow-hidden">
-          {/* Lane Markings - adjusted for viewport */}
+        {/* Left Lane - Red Track */}
+        <div className="relative flex-1 bg-red-200 rounded-lg border-2 border-red-400 overflow-hidden">
+          {/* Lane Markings */}
           <div className="absolute inset-0 flex flex-col items-center justify-evenly">
             {Array.from({ length: 8 }).map((_, i) => (
               <div 
                 key={i} 
-                className="w-1 h-8 bg-white opacity-50 rounded"
+                className="w-1 h-8 bg-white opacity-70 rounded"
               />
             ))}
           </div>
@@ -110,21 +110,21 @@ const RaceTrack = ({
           
           {/* Touch Area */}
           <button
-            className="absolute inset-0 bg-transparent active:bg-red-200/30 rounded-lg transition-colors"
+            className="absolute inset-0 bg-transparent active:bg-red-300/40 rounded-lg transition-colors"
             onTouchStart={(e) => handleTouch(e, 'left')}
             onClick={(e) => handleTouch(e, 'left')}
             disabled={!isGameActive}
           />
         </div>
 
-        {/* Right Lane */}
-        <div className="relative flex-1 bg-gradient-to-t from-blue-100 to-blue-50 rounded-lg border-2 border-blue-300 overflow-hidden">
-          {/* Lane Markings - adjusted for viewport */}
+        {/* Right Lane - Blue Track */}
+        <div className="relative flex-1 bg-blue-200 rounded-lg border-2 border-blue-400 overflow-hidden">
+          {/* Lane Markings */}
           <div className="absolute inset-0 flex flex-col items-center justify-evenly">
             {Array.from({ length: 8 }).map((_, i) => (
               <div 
                 key={i} 
-                className="w-1 h-8 bg-white opacity-50 rounded"
+                className="w-1 h-8 bg-white opacity-70 rounded"
               />
             ))}
           </div>
@@ -151,7 +151,7 @@ const RaceTrack = ({
           
           {/* Touch Area */}
           <button
-            className="absolute inset-0 bg-transparent active:bg-blue-200/30 rounded-lg transition-colors"
+            className="absolute inset-0 bg-transparent active:bg-blue-300/40 rounded-lg transition-colors"
             onTouchStart={(e) => handleTouch(e, 'right')}
             onClick={(e) => handleTouch(e, 'right')}
             disabled={!isGameActive}

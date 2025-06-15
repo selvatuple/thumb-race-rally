@@ -10,7 +10,7 @@ interface GameStatsProps {
 
 const GameStats = ({ leftDistance, rightDistance, leftPushes, rightPushes }: GameStatsProps) => {
   return (
-    <div className="flex justify-between mb-2">
+    <div className="flex justify-between items-center mb-2 w-full">
       {/* Left Lane Stats */}
       <div className="flex flex-col items-center space-y-1 text-center">
         <div className="text-xs font-medium text-red-600">🚗 Red</div>
